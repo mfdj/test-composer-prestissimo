@@ -2,6 +2,8 @@
 
 export DEBIAN_FRONTEND=noninteractive
 
+apt-get update
+
 apt-get install -y php7.0-cli php7.0-bz2 php7.0-zip php7.0-curl php7.0-gd php7.0-dom \
                  php7.0-simplexml php7.0-mcrypt php7.0-intl php7.0-xsl php7.0-mbstring \
                  php7.0-mysql
