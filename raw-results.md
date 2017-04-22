@@ -1,7 +1,10 @@
 
+```sh
+composer create-project magento/community-edition:2.1.6 community2.1.6 --no-install
+composer install --no-interaction --no-suggest --prefer-dist --no-progress --profile
+```
 
-
-### run 1
+#### run 1
 
 - create-project: 0m59.074s － 0m48.644s = 10.43s (1.214×) faster
 - install: 1m43.359s － 0m9.190s = 94.169s (11.24×) faster
@@ -61,7 +64,7 @@ sys   0m0.354s
 
 ```
 
-### run 2
+#### run 2
 
 - create-project: 1m0.027s － 0m49.537s = 10.49s (1.211×) faster
 - install: 1m45.100s － 0m10.131s = 94.969s (10.374×) faster
@@ -109,7 +112,7 @@ sys   0m0.368s
 
 ```
 
-### run 3
+#### run 3
 
 - create-project: 1m0.079s － 0m46.966s = 13.113s (1.279×) faster
 - install: 1m44.807s － 0m9.511s = 95.296s (11.02×) faster

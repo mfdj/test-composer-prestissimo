@@ -1,77 +1,46 @@
+### Purpose
 
-### switched from ubuntu to bento
+Compare composer installation times with and without the [prestissimo](https://github.com/hirak/prestissimo) plugin.
 
-Initially used:
+### Considerations
 
-```rb
-config.vm.box = 'ubuntu/xenial64'
+- We aim to have tests between environments with and without the plugin be consitent
+- Composer's built in cache needs to be considered
+- Everything is reproducible and tweakable — all assumptions should be evident
+
+**Networking Caveat**
+
+The hardest assumption to deal with is the network.
+
+Testing network heavy code is tricky &ndash; especially when interacting with public networks. The approach here is admidtely 
+a little naive, small sample sizes and an optimistic assumption that network responses are stable across runs undermines the 
+empirical value of this test suite.
+
+There is probably a way to remove these problems from the  testing but I'll dispense with that for now — I only have time to
+do a "thoughtful glance" test.
+
+### Running the tests
+
+**Requirements**
+
+- *nix enivornment with bash installed
+- Vagrant (built using 1.9.2)
+- VirtualBox (built using 5.1.10)
+
+Assuming those are met clone the repo and run:
+
+```
+./test-prestissmo.sh
 ```
 
-But switched to bento because it has guest additions
+Everything happens inside the VM.
 
-```rb
-config.vm.box = 'bento/ubuntu-16.04'
-```
+### Summary
 
-### skipping guest editions
+The numbers in [raw-results.md](raw-results.md) indicate the prestissmo plugin should make installing frameworks reliably faster
 
-if vagrant plugin list | grep vbguest
+Annectodatley I can say the plugin makes day to day composer usage feel snappier and after months of usage I haven't encountered a 
+single issue — it's a stable piece of software
 
-But you don't want guest additions you can add:
+My recommendation: use the plugin!
 
-```rb
-config.vbguest.auto_update = false
-```
-
-### virtual-box snapshots instead of vagrant-cachier
-
-Some background.
-
-To make sure that composer's cache wasn't influencing test cases I was rebuilding the box
-from scratch. This takes awhile, especially with all of the lamp depdendncies needed to run 
-magento 2.
-
-To speed up testing I had the idea to use the vagrant-cachier plugin so apt-get wouldn't constnatly be hitting
-the network during test runs. What I discovered was that cachier (is kindly) *also* aware of composer and caches it's
-cache.
-
-Rather than depend on cachier I've opted to use Virtual Box's snapshot capabilitiy to get the baseline state for running
-the tests.
-
-**xenial + cachier**
-
-When I was using the some cachier I encounted some interesting (known) issues with Xenial.
-
-see: https://github.com/fgrehm/vagrant-cachier/issues/175
-
-This config seemed to work *only* for apt-get:
-
-```rb
-if Vagrant.has_plugin?('vagrant-cachier')
-  config.cache.scope = :box
-  config.cache.synced_folder_opts = {
-    owner: "_apt",
-    group: "_apt"
-  }
-end
-```
-
-Can't remember the difference between `:machine` and `:box` but I had better luck with `:box`. 
-
-Composer ended up having a problem with this permissions because it was run as the vagrant user. I suspect that 
-adding `_apt` user to the `vagrant` group might be a better overall solution to the issue, although I didn't test this 
-approach.
-
-### automating mysql install
-
-Tips for setting mysql root pass: https://serversforhackers.com/video/installing-mysql-with-debconf
-
-### mariadb + magento
-
-decided to use mysql but was considering mariadb but once I discovered that magento doesn't officially support maria:
-
-https://community.magento.com/t5/Installing-Magento-2/MySQL-5-6-or-MariaDB-10-1-3/td-p/34034
-
-Also noticed ubuntu only uses 10.0 whereas 10.2 is more compatible with mysql 5.7:
-
-https://mariadb.com/kb/en/mariadb/mariadb-vs-mysql-compatibility/#incompatibilities-between-mariadb-102-and-mysql-57
