@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+mkdir -p .logs
+
 # ~=~=~=~ HELPER FUNCTIONS ~=~=~=~
 
 time_and_log() {
@@ -8,7 +10,7 @@ time_and_log() {
 	cmd=$2
 
 	logfile=.logs/${title//\ /_}
-	
+
 	echo "running: »${title}« as »${2}« and logging to $logfile"
 	time (bash -c "$cmd" &> "$logfile")
 	echo
@@ -22,6 +24,8 @@ time_and_log_vm() {
 fresh_box() {
 	time_and_log    'vagrant up'        'vagrant up'
 	time_and_log_vm 'create magento-db' '/vagrant/create-magento-db.sh'
+   time_and_log_vm 'create 2.1.2'      'composer create-project magento/community-edition:2.1.2 community2.1.2 --no-install'
+   time_and_log_vm 'create 2.1.3'      'composer create-project magento/community-edition:2.1.3 community2.1.3 --no-install'
 }
 
 vm_uuid() {
@@ -29,7 +33,7 @@ vm_uuid() {
 }
 
 find_snapshot() {
-	VBoxManage snapshot $(vm_uuid) showvminfo "$1" > /dev/null
+	VBoxManage snapshot $(vm_uuid) showvminfo "$1" &> /dev/null
 }
 
 make_snapshot() {
@@ -46,38 +50,30 @@ rollback_to_snapshot() {
 	vagrant up &> /dev/null
 }
 
-clean_magento() {
-	rm -rf ./community2.1.*/vendor
-}
-
 test_case() {
-	local install_flags='--no-interaction --no-ansi --no-suggest --prefer-dist --no-progress --profile'
+	local install_flags='--no-interaction --no-suggest --prefer-dist --no-progress --profile'
 
-	vagrant ssh -c "echo 'cd /vagrant' >> ~/.bash_profile" &> /dev/null
+	time_and_log_vm 'install 2.1.2' "cd ./*2.1.2; composer install $install_flags"
 
-	time_and_log_vm 'composer install 2.1.2' "cd ./*2.1.2; composer install $install_flags"
+	time_and_log_vm 'update 2.1.3' "cd ./*2.1.2; rm composer.json; cp ../*2.1.3/composer.json ./; composer update --lock $install_flags"
 
-	time_and_log_vm 'composer update 2.1.3' "cd ./*2.1.2; rm composer.json; cp ../*2.1.3/composer.json ./; composer update --lock $install_flags"
-
-	time_and_log_vm 'composer install 2.1.3' "cd ./*2.1.3; composer install $install_flags"
+	time_and_log_vm 'install 2.1.3' "cd ./*2.1.3; composer install $install_flags"
 }
 
 # ~=~=~=~ PROGRAM ~=~=~=~
 
 find_snapshot 'base-install' || {
-	fresh_box	
+	fresh_box
 	make_snapshot 'base-install'
 }
 
 find_snapshot 'base-install' || exit
 
 echo && echo '~=~=~=~=~=~=~=~ normal run ~=~=~=~=~=~=~=~=~=~'
-clean_magento
 rollback_to_snapshot 'base-install'
 test_case
 
 echo && echo '~=~=~=~=~=~=~=~ prestissimo run ~=~=~=~=~=~=~=~=~=~'
-clean_magento
 rollback_to_snapshot 'base-install'
 time_and_log_vm 'prestissimo plugin' 'composer global require "hirak/prestissimo:^0.3"'
 test_case
