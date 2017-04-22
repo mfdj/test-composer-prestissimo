@@ -2,13 +2,10 @@
 Vagrant.configure('2') do |config|
    config.vm.box = 'bento/ubuntu-16.04'
 
-   if Vagrant.has_plugin?('vagrant-cachier')
-      config.cache.scope = :box
-      config.cache.synced_folder_opts = {
-         owner: '_apt',
-         group: '_apt'
-      }
-   end
+   # DO NOT use cachier since it will screw with prestissimo tests
+   # if Vagrant.has_plugin?('vagrant-cachier')
+   #    config.cache.scope = :box
+   # end
 
-   config.vm.provision 'shell', path: 'xenial-provision.sh'
+   config.vm.provision 'shell', path: 'magento2-xenial-provision.sh'
 end

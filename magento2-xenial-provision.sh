@@ -14,6 +14,3 @@ if [ ! -f /usr/local/bin/composer ]; then
    php composer-setup.php && mv composer.phar /usr/local/bin/composer || exit 1
    rm composer-setup.php
 fi
-
-# reminder: bashrc is for login shells only
-#grep -q 'cd /vagrant' /home/vagrant/.bashrc || echo 'cd /vagrant' >> /home/vagrant/.bashrc

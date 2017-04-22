@@ -19,14 +19,14 @@ strict_query() {
 }
 
 query() {
-	sudo mysql -uroot -e "$1" || { 
+	sudo mysql -uroot -e "$1" || {
 		echo "Problem with query '$1'"
 		return 1
 	}
 }
 
 silent_query() {
-	sudo mysql -uroot -e "$1" &> /dev/null 
+	sudo mysql -uroot -e "$1" &> /dev/null
 }
 
 query_match() {
@@ -37,7 +37,7 @@ query_match() {
 	for pattern in "$@"; do
 		sudo mysql -uroot -e "$query" | grep -q "$pattern" || {
 			return 1
-		}	
+		}
 	done
 }
 
@@ -54,19 +54,13 @@ query_match 'show databases' 'information_schema' 'mysql' || {
 	exit 1
 }
 
-# query 'show databases' 	       && echo '1. expected' || echo 'unexpected (1)'
-# silent_query 'show databases'  && echo '2. expected' || echo 'unexpected (2)'
-# query 'show databases2'        && 'unexpected (3)' || echo '3. expected'
-# silent_query 'show databases2' && 'unexpected (4)' || echo '4. expected'
-# query_match 'show databases' 'dick-suck' 'magento' && echo unexpected || echo expected
-
 [[ $1 == drop-first || $1 == dropfirst ]] && {
 	for db in $DATABASES; do
 		silent_query "drop database $db"
 	done
 }
 
-# create database 
+# create database
 for db in $DATABASES; do
 	query_match 'show databases' "$db" || strict_query "create database $db"
 done
