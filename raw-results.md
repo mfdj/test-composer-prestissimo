@@ -1,159 +1,168 @@
 
-```sh
-composer create-project magento/community-edition:2.1.6 community2.1.6 --no-install
-composer install --no-interaction --no-suggest --prefer-dist --no-progress --profile
-```
+~=~=~=~=~=~=~=~ test_scenario_1 ~=~=~=~=~=~=~=~=~=~
 
-#### run 1
+:::::: no-plugin run
 
-- create-project: 0m59.074s － 0m48.644s = 10.43s (1.214×) faster
-- install: 1m43.359s － 0m9.190s = 94.169s (11.24×) faster
+»create magento 2.1.6 project inside vm«
+vagrant ssh -c 'composer create-project magento/community-edition:2.1.6 community2.1.6 --no-install' &> .logs/create_magento_2.1.6_project_inside_vm
+real    0m55.531s
+user    0m1.918s
+sys     0m0.338s
 
-```sh
-→ ./test-prestissimo.sh 
-running: »boot vm« as »vagrant up« and logging to .logs/boot_vm
+»install packages inside vm«
+vagrant ssh -c 'cd ./*2.1.6; composer install --no-interaction --no-suggest --prefer-dist --no-progress --profile' &> .logs/install_packages_inside_vm
+real    1m43.844s
+user    0m1.934s
+sys     0m0.361s
 
-real  0m4.479s
-user  0m2.574s
-sys   0m0.580s
-running: »ensure db and users inside vm« as »vagrant ssh -c '/vagrant/create-magento-db.sh'« and logging to .logs/ensure_db_and_users_inside_vm
+:::::: with-prestissimo run
 
-real  0m2.918s
-user  0m2.017s
-sys   0m0.344s
-Snapping base-install
-0%...10%...20%...30%...40%...50%...60%...70%...80%...90%...100%
-Snapshot taken. UUID: 7e5cd901-5a66-4e70-8baf-2be5577d364a
+»prestissimo plugin inside vm«
+vagrant ssh -c 'composer global require "hirak/prestissimo:^0.3"' &> .logs/prestissimo_plugin_inside_vm
+real    0m18.208s
+user    0m1.885s
+sys     0m0.342s
 
-~=~=~=~=~=~=~=~ normal run ~=~=~=~=~=~=~=~=~=~
-Rolling back to base-install
-==> test-prestissimo: Saving VM state and suspending execution...
-Restoring snapshot 7e5cd901-5a66-4e70-8baf-2be5577d364a
-0%...10%...20%...30%...40%...50%...60%...70%...80%...90%...100%
-running: »create magento 2.1.6 project inside vm« as »vagrant ssh -c 'composer create-project magento/community-edition:2.1.6 community2.1.6 --no-install'« and logging to .logs/create_magento_2.1.6_project_inside_vm
+»create magento 2.1.6 project inside vm«
+vagrant ssh -c 'composer create-project magento/community-edition:2.1.6 community2.1.6 --no-install' &> .logs/create_magento_2.1.6_project_inside_vm
+real    0m47.719s
+user    0m1.883s
+sys     0m0.326s
 
-real  0m59.074s
-user  0m1.941s
-sys   0m0.330s
-running: »install packages inside vm« as »vagrant ssh -c 'cd ./*2.1.6; composer install --no-interaction --no-suggest --prefer-dist --no-progress --profile'« and logging to .logs/install_packages_inside_vm
+»install packages inside vm«
+vagrant ssh -c 'cd ./*2.1.6; composer install --no-interaction --no-suggest --prefer-dist --no-progress --profile' &> .logs/install_packages_inside_vm
+real    0m9.205s
+user    0m1.893s
+sys     0m0.338s
 
-real  1m43.359s
-user  0m1.974s
-sys   0m0.351s
+~=~=~=~=~=~=~=~ test_scenario_2 ~=~=~=~=~=~=~=~=~=~
 
-~=~=~=~=~=~=~=~ prestissimo run ~=~=~=~=~=~=~=~=~=~
-Rolling back to base-install
-==> test-prestissimo: Saving VM state and suspending execution...
-Restoring snapshot 7e5cd901-5a66-4e70-8baf-2be5577d364a
-0%...10%...20%...30%...40%...50%...60%...70%...80%...90%...100%
-running: »prestissimo plugin inside vm« as »vagrant ssh -c 'composer global require "hirak/prestissimo:^0.3"'« and logging to .logs/prestissimo_plugin_inside_vm
+:::::: no-plugin run
 
-real  0m22.774s
-user  0m2.033s
-sys   0m0.352s
-running: »create magento 2.1.6 project inside vm« as »vagrant ssh -c 'composer create-project magento/community-edition:2.1.6 community2.1.6 --no-install'« and logging to .logs/create_magento_2.1.6_project_inside_vm
+»install magento 2.1.5 inside vm«
+vagrant ssh -c 'composer create-project --no-interaction --prefer-dist --no-progress --profile magento/community-edition:2.1.5 community2.1.5' &> .logs/install_magento_2.1.5_inside_vm
+real    2m41.910s
+user    0m1.918s
+sys     0m0.339s
 
-real  0m48.644s
-user  0m1.989s
-sys   0m0.339s
-running: »install packages inside vm« as »vagrant ssh -c 'cd ./*2.1.6; composer install --no-interaction --no-suggest --prefer-dist --no-progress --profile'« and logging to .logs/install_packages_inside_vm
+»install magento 2.1.6 inside vm«
+vagrant ssh -c 'composer create-project --no-interaction --prefer-dist --no-progress --profile magento/community-edition:2.1.6 community2.1.6' &> .logs/install_magento_2.1.6_inside_vm
+real    1m5.129s
+user    0m1.904s
+sys     0m0.349s
 
-real  0m9.190s
-user  0m2.005s
-sys   0m0.354s
+»install laravel 5.3 inside vm«
+vagrant ssh -c 'composer create-project --no-interaction --prefer-dist --no-progress --profile laravel/laravel:5.3.* laravel5.3' &> .logs/install_laravel_5.3_inside_vm
+real    1m54.431s
+user    0m1.905s
+sys     0m0.333s
 
-```
+»install laravel 5.4 inside vm«
+vagrant ssh -c 'composer create-project --no-interaction --prefer-dist --no-progress --profile laravel/laravel:5.4.* laravel5.4' &> .logs/install_laravel_5.4_inside_vm
+real    0m29.506s
+user    0m1.865s
+sys     0m0.328s
 
-#### run 2
+»install symfony 2 inside vm«
+vagrant ssh -c 'composer create-project --no-interaction --prefer-dist --no-progress --profile symfony/framework-standard-edition:2.* symfony2' &> .logs/install_symfony_2_inside_vm
+real    0m47.271s
+user    0m1.872s
+sys     0m0.324s
 
-- create-project: 1m0.027s － 0m49.537s = 10.49s (1.211×) faster
-- install: 1m45.100s － 0m10.131s = 94.969s (10.374×) faster
+»install symfony 3 inside vm«
+vagrant ssh -c 'composer create-project --no-interaction --prefer-dist --no-progress --profile symfony/framework-standard-edition:3.* symfony3' &> .logs/install_symfony_3_inside_vm
+real    0m22.736s
+user    0m1.904s
+sys     0m0.336s
 
+:::::: with-prestissimo run
 
-```sh
-→ ./test-prestissimo.sh 
+»prestissimo plugin inside vm«
+vagrant ssh -c 'composer global require "hirak/prestissimo:^0.3"' &> .logs/prestissimo_plugin_inside_vm
+real    0m20.913s
+user    0m1.869s
+sys     0m0.325s
 
-~=~=~=~=~=~=~=~ normal run ~=~=~=~=~=~=~=~=~=~
-Rolling back to base-install
-==> test-prestissimo: Saving VM state and suspending execution...
-Restoring snapshot 7e5cd901-5a66-4e70-8baf-2be5577d364a
-0%...10%...20%...30%...40%...50%...60%...70%...80%...90%...100%
-running: »create magento 2.1.6 project inside vm« as »vagrant ssh -c 'composer create-project magento/community-edition:2.1.6 community2.1.6 --no-install'« and logging to .logs/create_magento_2.1.6_project_inside_vm
+»install magento 2.1.5 inside vm«
+vagrant ssh -c 'composer create-project --no-interaction --prefer-dist --no-progress --profile magento/community-edition:2.1.5 community2.1.5' &> .logs/install_magento_2.1.5_inside_vm
+real    0m55.682s
+user    0m1.873s
+sys     0m0.323s
 
-real  1m0.027s
-user  0m1.973s
-sys   0m0.329s
-running: »install packages inside vm« as »vagrant ssh -c 'cd ./*2.1.6; composer install --no-interaction --no-suggest --prefer-dist --no-progress --profile'« and logging to .logs/install_packages_inside_vm
+»install magento 2.1.6 inside vm«
+vagrant ssh -c 'composer create-project --no-interaction --prefer-dist --no-progress --profile magento/community-edition:2.1.6 community2.1.6' &> .logs/install_magento_2.1.6_inside_vm
+real    0m53.151s
+user    0m1.881s
+sys     0m0.330s
 
-real  1m45.100s
-user  0m1.952s
-sys   0m0.355s
+»install laravel 5.3 inside vm«
+vagrant ssh -c 'composer create-project --no-interaction --prefer-dist --no-progress --profile laravel/laravel:5.3.* laravel5.3' &> .logs/install_laravel_5.3_inside_vm
+real    0m48.737s
+user    0m1.904s
+sys     0m0.334s
 
-~=~=~=~=~=~=~=~ prestissimo run ~=~=~=~=~=~=~=~=~=~
-Rolling back to base-install
-==> test-prestissimo: Saving VM state and suspending execution...
-Restoring snapshot 7e5cd901-5a66-4e70-8baf-2be5577d364a
-0%...10%...20%...30%...40%...50%...60%...70%...80%...90%...100%
-running: »prestissimo plugin inside vm« as »vagrant ssh -c 'composer global require "hirak/prestissimo:^0.3"'« and logging to .logs/prestissimo_plugin_inside_vm
+»install laravel 5.4 inside vm«
+vagrant ssh -c 'composer create-project --no-interaction --prefer-dist --no-progress --profile laravel/laravel:5.4.* laravel5.4' &> .logs/install_laravel_5.4_inside_vm
+real    0m16.867s
+user    0m1.877s
+sys     0m0.332s
 
-real  0m20.682s
-user  0m1.958s
-sys   0m0.334s
-running: »create magento 2.1.6 project inside vm« as »vagrant ssh -c 'composer create-project magento/community-edition:2.1.6 community2.1.6 --no-install'« and logging to .logs/create_magento_2.1.6_project_inside_vm
+»install symfony 2 inside vm«
+vagrant ssh -c 'composer create-project --no-interaction --prefer-dist --no-progress --profile symfony/framework-standard-edition:2.* symfony2' &> .logs/install_symfony_2_inside_vm
+real    0m14.129s
+user    0m1.872s
+sys     0m0.330s
 
-real  0m49.537s
-user  0m1.967s
-sys   0m0.345s
-running: »install packages inside vm« as »vagrant ssh -c 'cd ./*2.1.6; composer install --no-interaction --no-suggest --prefer-dist --no-progress --profile'« and logging to .logs/install_packages_inside_vm
+»install symfony 3 inside vm«
+vagrant ssh -c 'composer create-project --no-interaction --prefer-dist --no-progress --profile symfony/framework-standard-edition:3.* symfony3' &> .logs/install_symfony_3_inside_vm
+real    0m13.836s
+user    0m1.858s
+sys     0m0.326s
 
-real  0m10.131s
-user  0m1.957s
-sys   0m0.368s
+~=~=~=~=~=~=~=~ test_scenario_3 ~=~=~=~=~=~=~=~=~=~
 
-```
+:::::: no-plugin run
 
-#### run 3
+»install magento 2.1.6 inside vm«
+vagrant ssh -c 'composer create-project --no-interaction --prefer-dist --no-progress --profile magento/community-edition:2.1.6 community2.1.6-a' &> .logs/install_magento_2.1.6_inside_vm
+real    2m36.796s
+user    0m1.892s
+sys     0m0.326s
 
-- create-project: 1m0.079s － 0m46.966s = 13.113s (1.279×) faster
-- install: 1m44.807s － 0m9.511s = 95.296s (11.02×) faster
+»install magento 2.1.6 inside vm«
+vagrant ssh -c 'composer create-project --no-interaction --prefer-dist --no-progress --profile magento/community-edition:2.1.6 community2.1.6-b' &> .logs/install_magento_2.1.6_inside_vm
+real    0m41.479s
+user    0m1.925s
+sys     0m0.333s
 
-```sh
-→ ./test-prestissimo.sh 
+»install magento 2.1.6 inside vm«
+vagrant ssh -c 'composer create-project --no-interaction --prefer-dist --no-progress --profile magento/community-edition:2.1.6 community2.1.6-c' &> .logs/install_magento_2.1.6_inside_vm
+real    0m38.687s
+user    0m1.908s
+sys     0m0.335s
 
-~=~=~=~=~=~=~=~ normal run ~=~=~=~=~=~=~=~=~=~
-Rolling back to base-install
-==> test-prestissimo: Saving VM state and suspending execution...
-Restoring snapshot 7e5cd901-5a66-4e70-8baf-2be5577d364a
-0%...10%...20%...30%...40%...50%...60%...70%...80%...90%...100%
-running: »create magento 2.1.6 project inside vm« as »vagrant ssh -c 'composer create-project magento/community-edition:2.1.6 community2.1.6 --no-install'« and logging to .logs/create_magento_2.1.6_project_inside_vm
+:::::: with-prestissimo run
 
-real  1m0.079s
-user  0m1.995s
-sys   0m0.334s
-running: »install packages inside vm« as »vagrant ssh -c 'cd ./*2.1.6; composer install --no-interaction --no-suggest --prefer-dist --no-progress --profile'« and logging to .logs/install_packages_inside_vm
+»prestissimo plugin inside vm«
+vagrant ssh -c 'composer global require "hirak/prestissimo:^0.3"' &> .logs/prestissimo_plugin_inside_vm
+real    0m17.965s
+user    0m1.879s
+sys     0m0.322s
 
-real  1m44.807s
-user  0m1.953s
-sys   0m0.354s
+»install magento 2.1.6 inside vm«
+vagrant ssh -c 'composer create-project --no-interaction --prefer-dist --no-progress --profile magento/community-edition:2.1.6 community2.1.6-a' &> .logs/install_magento_2.1.6_inside_vm
+real    0m53.840s
+user    0m1.892s
+sys     0m0.335s
 
-~=~=~=~=~=~=~=~ prestissimo run ~=~=~=~=~=~=~=~=~=~
-Rolling back to base-install
-==> test-prestissimo: Saving VM state and suspending execution...
-Restoring snapshot 7e5cd901-5a66-4e70-8baf-2be5577d364a
-0%...10%...20%...30%...40%...50%...60%...70%...80%...90%...100%
-running: »prestissimo plugin inside vm« as »vagrant ssh -c 'composer global require "hirak/prestissimo:^0.3"'« and logging to .logs/prestissimo_plugin_inside_vm
+»install magento 2.1.6 inside vm«
+vagrant ssh -c 'composer create-project --no-interaction --prefer-dist --no-progress --profile magento/community-edition:2.1.6 community2.1.6-b' &> .logs/install_magento_2.1.6_inside_vm
+real    0m42.389s
+user    0m1.883s
+sys     0m0.336s
 
-real  0m20.596s
-user  0m2.096s
-sys   0m0.351s
-running: »create magento 2.1.6 project inside vm« as »vagrant ssh -c 'composer create-project magento/community-edition:2.1.6 community2.1.6 --no-install'« and logging to .logs/create_magento_2.1.6_project_inside_vm
-
-real  0m46.966s
-user  0m1.894s
-sys   0m0.338s
-running: »install packages inside vm« as »vagrant ssh -c 'cd ./*2.1.6; composer install --no-interaction --no-suggest --prefer-dist --no-progress --profile'« and logging to .logs/install_packages_inside_vm
-
-real  0m9.511s
-user  0m2.091s
-sys   0m0.402s
-```
+»install magento 2.1.6 inside vm«
+vagrant ssh -c 'composer create-project --no-interaction --prefer-dist --no-progress --profile magento/community-edition:2.1.6 community2.1.6-c' &> .logs/install_magento_2.1.6_inside_vm
+real    0m41.153s
+user    0m1.901s
+sys     0m0.324s
