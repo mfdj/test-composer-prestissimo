@@ -2,7 +2,7 @@
 
 mkdir -p .logs
 
-# ~=~=~=~ HELPER FUNCTIONS ~=~=~=~
+# ~=~=~=~ HELPERS ~=~=~=~
 
 time_and_log() {
    local title
@@ -36,25 +36,51 @@ fresh_box() {
 }
 
 vm_uuid() {
-   VBoxManage list vms | grep 'xenial.*test-prestissimo' | awk '{print $2}' | tr -d '{}'
+   VBoxManage list vms | grep '.*test-prestissimo' | awk '{print $2}' | tr -d '{}'
 }
 
 find_snapshot() {
-   VBoxManage snapshot $(vm_uuid) showvminfo "$1" &> /dev/null
+   VBoxManage snapshot "$(vm_uuid)" showvminfo "$1" &> /dev/null
 }
 
 make_snapshot() {
    echo "Snapping $1"
    [[ $1 ]] || return 1
-   VBoxManage snapshot $(vm_uuid) take "$1"
+   VBoxManage snapshot "$(vm_uuid)" take "$1"
 }
 
 rollback_to_snapshot() {
    echo "Rolling back to $1"
    [[ $1 ]] || return 1
    vagrant suspend
-   VBoxManage snapshot $(vm_uuid) restore "$1" && vagrant up &> /dev/null
+   VBoxManage snapshot "$(vm_uuid)" restore "$1" && vagrant up &> /dev/null
 }
+
+run_scenario() {
+   local run_scenario_n
+
+   run_scenario_n=test_scenario_$1
+
+   [[ $(type -t $run_scenario_n) != function ]] && {
+      echo "No scenario defined: $run_scenario_n"
+      return 1
+   }
+
+   echo && echo "~=~=~=~=~=~=~=~ $run_scenario_n ~=~=~=~=~=~=~=~=~=~"
+
+   echo && echo ':::::: no-plugin run'
+   echo
+   rollback_to_snapshot 'base-install'
+   $run_scenario_n
+
+   echo && echo ':::::: with-prestissimo run'
+   echo
+   rollback_to_snapshot 'base-install'
+   time_and_log_vm 'prestissimo plugin' 'composer global require "hirak/prestissimo:^0.3"'
+   $run_scenario_n
+}
+
+# ~=~=~=~ PROGRAM ~=~=~=~
 
 test_scenario_0() {
    time_and_log 'say hi' 'echo hi'
@@ -88,32 +114,6 @@ test_scenario_3() {
    time_and_log_vm 'install magento 2.1.6' "$create magento/community-edition:2.1.6 community2.1.6-b"
    time_and_log_vm 'install magento 2.1.6' "$create magento/community-edition:2.1.6 community2.1.6-c"
 }
-
-run_scenario() {
-   local run_scenario_n
-
-   run_scenario_n=test_scenario_$1
-
-   [[ $(type -t $run_scenario_n) != function ]] && {
-      echo "No scenario defined: $run_scenario_n"
-      return 1
-   }
-
-   echo && echo "~=~=~=~=~=~=~=~ $run_scenario_n ~=~=~=~=~=~=~=~=~=~"
-
-   echo && echo ':::::: no-plugin run'
-   echo
-   rollback_to_snapshot 'base-install'
-   $run_scenario_n
-
-   echo && echo ':::::: with-prestissimo run'
-   echo
-   rollback_to_snapshot 'base-install'
-   time_and_log_vm 'prestissimo plugin' 'composer global require "hirak/prestissimo:^0.3"'
-   $run_scenario_n
-}
-
-# ~=~=~=~ PROGRAM ~=~=~=~
 
 find_snapshot 'base-install' || {
    fresh_box && make_snapshot 'base-install'
